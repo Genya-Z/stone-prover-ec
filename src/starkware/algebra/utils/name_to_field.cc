@@ -46,6 +46,9 @@ std::optional<Field> NameToField(const std::string& field_name) {
   if (field_name == "PrimeField4") {
     return Field::Create<PrimeFieldElement<255, 4>>();
   }
+  if (field_name == "PrimeField5") {
+    return Field::Create<PrimeFieldElement<124, 5>>();
+  }
   if (field_name == "LongField") {
     return Field::Create<LongFieldElement>();
   }

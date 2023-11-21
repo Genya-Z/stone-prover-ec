@@ -124,7 +124,9 @@ auto InvokeGenericTemplateVersion(const Func& func, const ChooserFunc& chooser_f
 using FieldInvokedTypes = InvokedTypes<
     PrimeFieldElement<252, 0>, TestFieldElement, LongFieldElement,
     ExtensionFieldElement<LongFieldElement>, ExtensionFieldElement<PrimeFieldElement<252, 0>>,
-    ExtensionFieldElement<TestFieldElement>, PrimeFieldElement<124, 5>, LongFieldElement>;
+    ExtensionFieldElement<TestFieldElement>, PrimeFieldElement<124, 5>,
+    PrimeFieldElement<254, 1>, PrimeFieldElement<254, 2>, PrimeFieldElement<252, 3>,
+    PrimeFieldElement<255, 4>>;
 
 /*
   Invokes func(field_tag) where field_tag is of type TagType<T> and T is the underlying type of the
