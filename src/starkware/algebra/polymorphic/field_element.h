@@ -21,6 +21,8 @@
 #include <string>
 #include <vector>
 
+#include "starkware/algebra/elliptic_curve/elliptic_curve.h"
+#include "nethermind/ec_group.h"
 #include "third_party/gsl/gsl-lite.hpp"
 
 namespace starkware {
@@ -31,6 +33,9 @@ class FieldElement {
  public:
   template <typename T>
   explicit FieldElement(const T& t);
+
+  template <typename T>
+  explicit FieldElement(const EcPoint<T>& t, const EC<T>& ec);
 
   FieldElement(const FieldElement& other);
 
@@ -63,11 +68,20 @@ class FieldElement {
   template <typename T>
   const T& As() const;
 
+  template <typename T>
+  const EcPoint<T>& AsEc() const;
+
+  template <typename T>
+  const EC<T>& GetCurve() const;
+
  private:
   class WrapperBase;
 
   template <typename T>
   class Wrapper;
+
+  template <typename T>
+  class EcWrapper;
 
   std::unique_ptr<WrapperBase> wrapper_;
 };

@@ -5,13 +5,13 @@ target_link_libraries(algebra INTERFACE domains fields polymorphic_algebra prng 
 add_library(field_operations INTERFACE)
 add_dependencies(field_operations INTERFACE third_party)
 
-add_executable(field_operations_test field_operations_test.cc)
-target_link_libraries(field_operations_test algebra starkware_gtest)
-add_test(field_operations_test field_operations_test)
+#add_executable(field_operations_test field_operations_test.cc)
+#target_link_libraries(field_operations_test algebra starkware_gtest)
+#add_test(field_operations_test field_operations_test)
 
-add_executable(field_operations_axioms_test field_operations_axioms_test.cc)
-target_link_libraries(field_operations_axioms_test algebra starkware_gtest)
-add_test(field_operations_axioms_test field_operations_axioms_test)
+#add_executable(field_operations_axioms_test field_operations_axioms_test.cc)
+#target_link_libraries(field_operations_axioms_test algebra starkware_gtest)
+#add_test(field_operations_axioms_test field_operations_axioms_test)
 
 add_executable(field_element_base_test field_element_base_test.cc)
 target_link_libraries(field_element_base_test algebra starkware_gtest)

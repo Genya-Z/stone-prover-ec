@@ -49,7 +49,7 @@ class PrimeFieldElement : public FieldElementBase<PrimeFieldElement<NBits, Index
   PrimeFieldElement() : value_(UninitializedTag()) {}
 #else
   // In debug builds, we make sure that the default constructor is not called at all.
-  PrimeFieldElement() = delete;
+  //PrimeFieldElement() = delete;
 #endif
 
   explicit PrimeFieldElement(UninitializedTag /*tag*/) : value_(UninitializedTag()) {}

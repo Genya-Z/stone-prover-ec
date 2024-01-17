@@ -25,16 +25,18 @@ namespace {
 
 std::unique_ptr<CachedLdeManager> CreateLdeManager(
     const CachedLdeManager::Config& config, const FftBases& trace_domain,
-    const ListOfCosets& evaluation_domain) {
+    const ListOfCosetsBase& evaluation_domain) {
   std::unique_ptr<LdeManager> lde_manager = MakeLdeManager(trace_domain);
 
-  const Field& field = evaluation_domain.GetField();
-  FieldElementVector coset_offsets =
-      FieldElementVector::MakeUninitialized(field, evaluation_domain.NumCosets());
+  //const Field& field = evaluation_domain.GetField();
+  std::vector<FieldElement> coset_offsets =
+      std::vector<FieldElement>();
+
+  coset_offsets.reserve(evaluation_domain.NumCosets());
 
   size_t log_cosets = SafeLog2(evaluation_domain.NumCosets());
-  for (uint64_t i = 0; i < coset_offsets.Size(); ++i) {
-    coset_offsets.Set(i, evaluation_domain.CosetsOffsets()[BitReverse(i, log_cosets)]);
+  for (uint64_t i = 0; i < evaluation_domain.NumCosets(); ++i) {
+    coset_offsets.push_back(evaluation_domain.CosetsOffsets()[BitReverse(i, log_cosets)]);
   }
 
   // Create CachedLdeManager.
@@ -46,7 +48,7 @@ std::unique_ptr<CachedLdeManager> CreateLdeManager(
 
 CommittedTraceProver::CommittedTraceProver(
     const CachedLdeManager::Config& cached_lde_config,
-    MaybeOwnedPtr<const ListOfCosets> evaluation_domain, size_t n_columns,
+    MaybeOwnedPtr<const ListOfCosetsBase> evaluation_domain, size_t n_columns,
     const TableProverFactory& table_prover_factory)
     : cached_lde_config_(cached_lde_config),
       evaluation_domain_(std::move(evaluation_domain)),
@@ -163,6 +165,45 @@ void CommittedTraceProver::EvalMaskAtPoint(
     }
   }
 }
+
+/*void CommittedTraceProver::EvalMaskAtPoint(
+    gsl::span<const std::pair<int64_t, uint64_t>> mask, const FieldElement& point,
+    const gsl::span<FieldElement>& output) const {
+  const Field field = evaluation_domain_->GetField();
+  const FieldElement& trace_gen = evaluation_domain_->TraceGenerator();
+
+  ASSERT_RELEASE(mask.size() == output.size(), "Wrong output size");
+
+  // A map from column index to pairs (mask_row_offset, mask_index).
+  std::map<uint64_t, std::vector<std::pair<int64_t, size_t>>> columns;
+  for (size_t mask_index = 0; mask_index < mask.size(); ++mask_index) {
+    const auto& [row_offset, column_index] = mask[mask_index];
+    ASSERT_RELEASE(row_offset >= 0, "EvalMaskAtPoint() does not support negative mask rows");
+    columns[column_index].emplace_back(row_offset, mask_index);
+  }
+
+  for (const auto& [column_index, offsets] : columns) {
+    // Compute points to evaluate at.
+    std::vector<FieldElement> points;
+    points.reserve(offsets.size());
+    for (const auto& offset_pair : offsets) {
+      const int64_t row_offset = offset_pair.first;
+      points.push_back(point * trace_gen.Pow(row_offset));
+    }
+
+    // Allocate output.
+    std::vector<FieldElement> column_output = std::vector<FieldElement>(offsets.size(),field.Zero());
+
+    // Evaluate.
+    lde_->EvalAtPointsNotCached(column_index, points, column_output);
+
+    // Place outputs at correct place.
+    for (size_t i = 0; i < offsets.size(); ++i) {
+      const size_t mask_index = offsets[i].second;
+      output[mask_index] = column_output.at(i);
+    }
+  }
+}*/
 
 void CommittedTraceProver::AnswerQueries(
     const std::vector<uint64_t>& rows_to_fetch, std::vector<FieldElementVector>* output) const {

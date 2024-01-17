@@ -53,13 +53,29 @@ class CachedLdeManager {
       const Config& config, MaybeOwnedPtr<LdeManager> lde_manager,
       MaybeOwnedPtr<FieldElementVector> coset_offsets)
       : lde_manager_(std::move(lde_manager)),
+        //coset_offsets_(std::move(coset_offsets)),
+        config_(config),
+        cache_(coset_offsets_->size()),
+        ifft_precompute_(lde_manager_->IfftPrecompute()),
+        previous_coset_offset_(coset_offsets->At(0)) {
+    coset_offsets_->reserve(coset_offsets->Size());
+    for(size_t i = 0; i < coset_offsets->Size(); i++)
+      coset_offsets_->push_back(FieldElement(coset_offsets->At(i)));
+    ASSERT_RELEASE(coset_offsets_->size() > 0, "At least one coset offset required");
+    domain_size_ = lde_manager_->GetDomain(coset_offsets_->at(0))->Size();
+  }
+
+  CachedLdeManager(
+      const Config& config, MaybeOwnedPtr<LdeManager> lde_manager,
+      MaybeOwnedPtr<std::vector<FieldElement>> coset_offsets)
+      : lde_manager_(std::move(lde_manager)),
         coset_offsets_(std::move(coset_offsets)),
         config_(config),
-        cache_(coset_offsets_->Size()),
+        cache_(coset_offsets_->size()),
         ifft_precompute_(lde_manager_->IfftPrecompute()),
-        previous_coset_offset_(coset_offsets_->At(0)) {
-    ASSERT_RELEASE(coset_offsets_->Size() > 0, "At least one coset offset required");
-    domain_size_ = lde_manager_->GetDomain(coset_offsets_->At(0))->Size();
+        previous_coset_offset_(coset_offsets_->at(0)) {
+    ASSERT_RELEASE(coset_offsets_->size() > 0, "At least one coset offset required");
+    domain_size_ = lde_manager_->GetDomain(coset_offsets_->at(0))->Size();
   }
 
   void AddEvaluation(FieldElementVector&& evaluation) {
@@ -107,6 +123,8 @@ class CachedLdeManager {
   void EvalAtPointsNotCached(
       size_t column_index, const ConstFieldElementSpan& points, const FieldElementSpan& output);
 
+//  void EvalAtPointsNotCached(
+//      size_t column_index, const gsl::span<FieldElement>& points, const gsl::span<FieldElement>& output);
   /*
     Indicates no new computations will occur. If store_full_lde_ is true, that means we can release
     lde_manager_ if owned.
@@ -121,7 +139,7 @@ class CachedLdeManager {
   void FinalizeAdding() {
     ASSERT_RELEASE(!done_adding_, "FinalizeAdding called twice.");
     ifft_precompute_.reset(nullptr);
-    fft_precompute_ = lde_manager_->FftPrecompute(coset_offsets_->At(0));
+    fft_precompute_ = lde_manager_->FftPrecompute(coset_offsets_->at(0));
 
     done_adding_ = true;
   }
@@ -143,7 +161,7 @@ class CachedLdeManager {
   LdeCacheEntry InitializeEntry() const;
 
   MaybeOwnedPtr<LdeManager> lde_manager_;
-  MaybeOwnedPtr<FieldElementVector> coset_offsets_;
+  MaybeOwnedPtr<std::vector<FieldElement>> coset_offsets_;
   uint64_t domain_size_;
   bool done_adding_ = false;
   size_t n_columns_ = 0;

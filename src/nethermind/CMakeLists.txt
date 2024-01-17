@@ -1,0 +1,7 @@
+add_library(ec_cosets list_of_ec_cosets.cc)
+
+add_library(ec_data ec_data.cc)
+
+add_executable(ec_committed_trace_test ec_committed_trace_test.cc)
+target_link_libraries(ec_committed_trace_test committed_trace merkle_tree channel stark_utils starkware_gtest ec_cosets ec_data)
+add_test(ec_committed_trace_test ec_committed_trace_test)

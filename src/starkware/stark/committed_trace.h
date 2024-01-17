@@ -86,7 +86,7 @@ class CommittedTraceProver : public CommittedTraceProverBase {
   // Constructor.
   CommittedTraceProver(
       const CachedLdeManager::Config& cached_lde_config,
-      MaybeOwnedPtr<const ListOfCosets> evaluation_domain, size_t n_columns,
+      MaybeOwnedPtr<const ListOfCosetsBase> evaluation_domain, size_t n_columns,
       const TableProverFactory& table_prover_factory);
 
   size_t NumColumns() const override { return n_columns_; }
@@ -101,6 +101,10 @@ class CommittedTraceProver : public CommittedTraceProverBase {
       gsl::span<const std::pair<int64_t, uint64_t>> mask, const FieldElement& point,
       const FieldElementSpan& output) const override;
 
+  /*void EvalMaskAtPoint(
+      gsl::span<const std::pair<int64_t, uint64_t>> mask, const FieldElement& point,
+      const gsl::span<FieldElement>& output) const;*/
+
   void FinalizeEval() override { lde_->FinalizeEvaluations(); }
 
  private:
@@ -114,7 +118,7 @@ class CommittedTraceProver : public CommittedTraceProverBase {
 
   CachedLdeManager::Config cached_lde_config_;
   std::unique_ptr<CachedLdeManager> lde_;
-  MaybeOwnedPtr<const ListOfCosets> evaluation_domain_;
+  MaybeOwnedPtr<const ListOfCosetsBase> evaluation_domain_;
   size_t n_columns_;
   std::unique_ptr<TableProver> table_prover_;
 };

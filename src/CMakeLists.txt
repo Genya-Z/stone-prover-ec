@@ -4,3 +4,4 @@ target_link_libraries(starkware_common INTERFACE ${STARKWARE_COMMON_LIBS})
 
 add_subdirectory(starkware)
 add_subdirectory(third_party)
+add_subdirectory(nethermind)

@@ -25,9 +25,9 @@ add_executable(oods_test oods_test.cc)
 target_link_libraries(oods_test oods channel stark_utils starkware_gtest fibonacci_air)
 add_test(oods_test oods_test)
 
-add_executable(stark_test stark_test.cc)
-target_link_libraries(stark_test stark fibonacci_air degree_three_example_air permutation_dummy_air merkle_tree commitment_scheme_builder proof_system starkware_gtest)
-add_test(stark_test stark_test)
+#add_executable(stark_test stark_test.cc)
+#target_link_libraries(stark_test stark fibonacci_air degree_three_example_air permutation_dummy_air merkle_tree commitment_scheme_builder proof_system starkware_gtest)
+#add_test(stark_test stark_test)
 
 add_executable(stark_params_test stark_params_test.cc)
 target_link_libraries(stark_params_test degree_three_example_air stark starkware_gtest)

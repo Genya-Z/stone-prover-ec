@@ -15,6 +15,7 @@
 #ifndef STARKWARE_ALGEBRA_FIELD_ELEMENT_BASE_H_
 #define STARKWARE_ALGEBRA_FIELD_ELEMENT_BASE_H_
 
+#include <cstdint>
 #include <iostream>
 #include <limits>
 #include <vector>

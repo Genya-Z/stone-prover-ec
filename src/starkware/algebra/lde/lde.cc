@@ -25,6 +25,8 @@
 #include "starkware/algebra/polynomials.h"
 #include "starkware/algebra/utils/invoke_template_version.h"
 #include "starkware/utils/bit_reversal.h"
+#include "nethermind/ec_lde.h"
+#include "nethermind/ec_lde_manager_impl.h"
 
 namespace starkware {
 
@@ -42,12 +44,18 @@ std::unique_ptr<LdeManager> MakeLdeManager(const FftBases& bases) {
                 *ptr);
           }
         }
-        auto ptr = dynamic_cast<const MultiplicativeFftBases<
-            FieldElementT, MultiplicativeGroupOrdering::kBitReversedOrder>*>(&bases);
+        {
+          auto ptr = dynamic_cast<const MultiplicativeFftBases<
+              FieldElementT, MultiplicativeGroupOrdering::kBitReversedOrder>*>(&bases);
+          if (ptr != nullptr) {
+            return std::make_unique<LdeManagerTmpl<
+                MultiplicativeLde<MultiplicativeGroupOrdering::kBitReversedOrder, FieldElementT>>>(
+                *ptr);
+          }
+        }
+        auto ptr = dynamic_cast<const EcFftBases<FieldElementT>*>(&bases);
         ASSERT_RELEASE(ptr != nullptr, "The underlying type of FftBases is wrong");
-        return std::make_unique<LdeManagerTmpl<
-            MultiplicativeLde<MultiplicativeGroupOrdering::kBitReversedOrder, FieldElementT>>>(
-            *ptr);
+        return std::make_unique<EcLdeManagerTmpl<EcLde<FieldElementT>>>(*ptr);
       },
       bases.GetField());
 }

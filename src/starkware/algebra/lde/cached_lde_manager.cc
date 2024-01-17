@@ -28,13 +28,13 @@ std::unique_ptr<CachedLdeManager::LdeCacheEntry> CachedLdeManager::AllocateStora
 const CachedLdeManager::LdeCacheEntry* CachedLdeManager::EvalOnCoset(
     uint64_t coset_index, LdeCacheEntry* storage) {
   ASSERT_RELEASE(done_adding_, "Must call FinalizeAdding() before calling EvalOnCoset()");
-  ASSERT_RELEASE(coset_index < coset_offsets_->Size(), "Coset index out of bounds.");
+  ASSERT_RELEASE(coset_index < coset_offsets_->size(), "Coset index out of bounds.");
 
   if (cache_[coset_index].has_value()) {
     return &*cache_[coset_index];
   }
 
-  const FieldElement& coset_offset = coset_offsets_->At(coset_index);
+  const FieldElement& coset_offset = coset_offsets_->at(coset_index);
   if (coset_offset != previous_coset_offset_) {
     fft_precompute_->ShiftTwiddleFactors(coset_offset, previous_coset_offset_);
     previous_coset_offset_ = coset_offset;
@@ -111,10 +111,10 @@ void CachedLdeManager::EvalAtPoints(
   // Evaluate pointwise.
   ASSERT_RELEASE(
       lde_manager_.HasValue(), "Cannot evaluate new values after FinalizeEvaluations() was called");
-  FieldElementVector points = FieldElementVector::Make(coset_offsets_->At(0).GetField());
+  FieldElementVector points = FieldElementVector::Make(coset_offsets_->at(0).GetField());
   points.Reserve(coset_and_point_indices.size());
   for (const auto& [coset_index, point_index] : coset_and_point_indices) {
-    auto domain = lde_manager_->GetDomain(coset_offsets_->At(coset_index));
+    auto domain = lde_manager_->GetDomain(coset_offsets_->at(coset_index));
     points.PushBack(domain->GetFieldElementAt(point_index));
   }
 
@@ -130,13 +130,20 @@ void CachedLdeManager::EvalAtPointsNotCached(
   lde_manager_->EvalAtPoints(column_index, points, output);
 }
 
+/*void CachedLdeManager::EvalAtPointsNotCached(
+    size_t column_index, const gsl::span<FieldElement>& points, const gsl::span<FieldElement>& output) {
+  ASSERT_RELEASE(
+      lde_manager_.HasValue(), "Cannot evaluate new values after FinalizeEvaluations() was called");
+  lde_manager_->EvalAtPoints(column_index, points, output);
+}*/
+
 CachedLdeManager::LdeCacheEntry CachedLdeManager::InitializeEntry() const {
   LdeCacheEntry entry;
   const uint64_t coset_size = domain_size_;
   entry.reserve(n_columns_);
   for (size_t i = 0; i < n_columns_; ++i) {
     entry.push_back(
-        FieldElementVector::MakeUninitialized(coset_offsets_->At(0).GetField(), coset_size));
+        FieldElementVector::MakeUninitialized(coset_offsets_->at(0).GetField(), coset_size));
   }
   return entry;
 }

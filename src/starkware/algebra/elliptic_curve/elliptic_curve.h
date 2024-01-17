@@ -55,6 +55,7 @@ class EcPoint {
   EcPoint operator+(const EcPoint& rhs) const;
   EcPoint& operator+=(const EcPoint& rhs) { return *this = ((*this) + rhs); }
   EcPoint operator-() const { return EcPoint(x, -y); }
+  EcPoint Inverse() const { return -(*this); }
   EcPoint operator-(const EcPoint& rhs) const { return (*this) + (-rhs); }
 
   bool IsOnCurve(const FieldElementT& alpha, const FieldElementT& beta) const;

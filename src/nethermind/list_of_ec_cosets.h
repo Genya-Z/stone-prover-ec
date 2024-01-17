@@ -1,62 +1,26 @@
-// Copyright 2023 StarkWare Industries Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the "License").
-// You may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// https://www.starkware.co/open-source-license/
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions
-// and limitations under the License.
 
-#ifndef STARKWARE_ALGEBRA_DOMAINS_LIST_OF_COSETS_H_
-#define STARKWARE_ALGEBRA_DOMAINS_LIST_OF_COSETS_H_
+#ifndef NETHERMIND_LIST_OF_EC_COSETS_H_
+#define NETHERMIND_LIST_OF_EC_COSETS_H_
 
 #include <memory>
 #include <vector>
 
 #include "starkware/algebra/domains/multiplicative_group.h"
+#include "starkware/algebra/domains/list_of_cosets.h"
 #include "starkware/error_handling/error_handling.h"
 #include "starkware/fft_utils/fft_bases.h"
 #include "starkware/math/math.h"
 
-namespace starkware {
-
-class ListOfCosetsBase{
-  public:
-  virtual ~ListOfCosetsBase() = default;
-
-  virtual const FftDomainBase& Group() const = 0;
-
-  virtual const Field& GetField() const = 0;
-
-  virtual const FieldElement& TraceGenerator() const = 0;
-
-  virtual size_t NumCosets() const = 0;
-
-  virtual const std::vector<FieldElement>& CosetsOffsets() const = 0;
-
-  //size_t Size() const;
-
-  //const FftBases& Bases() const;
-
-  //FieldElement ElementByIndex(size_t coset_index, size_t group_index) const;
-
-  // Evaluates the vanishing polynomial of the group.
-  //FieldElement VanishingPolynomial(const FieldElement& eval_point) const;
-
-};
+#include "nethermind/ec_fft_bases.h"
+#include "nethermind/ec_data.h"
 
 /*
-  ListOfCosets is a union of cosets of a group.
-  Let G be a multiplicative subgroup of the field of size coset_size, then the instance
+  ListOfEcCosets is a union of cosets of a group.
+  Let G be a subgroup of the elliptic curve of size coset_size, then the instance
   represents a set which is a union of the cosets s_0 # G, s_1 # G , ... , s_{n_cosets-1} # G (where
   # is the group opperation).
 */
-class ListOfCosets : public ListOfCosetsBase {
+class ListOfEcCosets : public starkware::ListOfCosetsBase {
  public:
   /*
     Constructs an instance with a group of size coset_size and the number of cosets is n_cosets.
@@ -73,14 +37,19 @@ class ListOfCosets : public ListOfCosetsBase {
     The order parameter affects the order of Bases(), which represents the domain within each coset.
     The cosest offsets remain unchanged, only the order within each coset.
   */
-  static ListOfCosets MakeListOfCosets(
-      size_t coset_size, size_t n_cosets, const Field& field,
-      MultiplicativeGroupOrdering order = MultiplicativeGroupOrdering::kNaturalOrder);
+  using Field = starkware::Field;
+  using FieldElement = starkware::FieldElement;
+  using FftDomainBase = starkware::FftDomainBase;
+  using FftBases = starkware::FftBases;
+
+  static ListOfEcCosets MakeListOfEcCosets(
+      size_t coset_size, size_t n_cosets, const EcData& ec_data);
 
   const FftDomainBase& Group() const { return Bases().At(0); }
 
   const Field& GetField() const { return field_; }
 
+  //maybe rename FieldElement GroupElement
   const FieldElement& TraceGenerator() const { return trace_generator_; }
 
   size_t NumCosets() const { return cosets_offsets_.size(); }
@@ -89,7 +58,7 @@ class ListOfCosets : public ListOfCosetsBase {
 
   size_t Size() const { return Group().Size() * cosets_offsets_.size(); }
 
-  const FftBases& Bases() const { return *fft_bases_; }
+  const starkware::FftBases& Bases() const { return *fft_bases_; }
 
   FieldElement ElementByIndex(size_t coset_index, size_t group_index) const;
 
@@ -97,9 +66,13 @@ class ListOfCosets : public ListOfCosetsBase {
   FieldElement VanishingPolynomial(const FieldElement& eval_point) const;
 
  private:
-  ListOfCosets(
+  //template<typename FieldElementT>
+  ListOfEcCosets(
       std::unique_ptr<FftBases>&& fft_bases, std::vector<FieldElement> cosets_offsets,
-      FieldElement trace_generator, Field field);
+      FieldElement trace_generator, const Field& field);
+
+  //template<typename FieldElementT>
+  //ListOfEcCosets(std::vector<FieldElement> cosets_offsets, FieldElement trace_generator, const Field& field);
 
   std::unique_ptr<FftBases> fft_bases_;
   std::vector<FieldElement> cosets_offsets_;
@@ -107,6 +80,6 @@ class ListOfCosets : public ListOfCosetsBase {
   Field field_;
 };
 
-}  // namespace starkware
+//#include "nethermind/list_of_ec_cosets.cc"
 
-#endif  // STARKWARE_ALGEBRA_DOMAINS_LIST_OF_COSETS_H_
+#endif  // NETHERMIND_LIST_OF_EC_COSETS_H_

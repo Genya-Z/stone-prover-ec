@@ -30,11 +30,11 @@ FieldElement& FieldElement::operator=(const FieldElement& other) & {
 
 Field FieldElement::GetField() const { return wrapper_->GetField(); }
 
-FieldElement FieldElement::operator+(const FieldElement& other) const { return *wrapper_ + other; }
+//FieldElement FieldElement::operator+(const FieldElement& other) const { return *wrapper_ + other; }
 
-FieldElement FieldElement::operator-(const FieldElement& other) const { return *wrapper_ - other; }
+//FieldElement FieldElement::operator-(const FieldElement& other) const { return *wrapper_ - other; }
 
-FieldElement FieldElement::operator-() const { return -*wrapper_; }
+//FieldElement FieldElement::operator-() const { return -*wrapper_; }
 
 FieldElement FieldElement::operator*(const FieldElement& other) const { return *wrapper_ * other; }
 
